@@ -8,6 +8,7 @@ import logging
 from .webcolors import hex_to_rgb, rgb_to_hex
 from .utilities import matrixMult, matrixApply, vertexScale, parseFloats
 from .svg_tag_reader import SVGTagReader
+from config import config
 
 
 logging.basicConfig()
@@ -274,11 +275,14 @@ class SVGReader:
                             matrixApply(node['xformToWorld'], vert)
                             vertexScale(vert, self.px2mm)
                         # 3b.) sort output by color
-                        hexcolor = node['stroke']
-                        if hexcolor in self.boundarys:
-                            self.boundarys[hexcolor].append(path)
-                        else:
-                            self.boundarys[hexcolor] = [path]
+                        strokecolor = node['stroke']
+                        fillcolor = node['fill']
+                        if not strokecolor.lower() in config['ignored_colors'] and not fillcolor.lower() in config['ignored_colors']:
+                            if strokecolor in self.boundarys:
+                                self.boundarys[strokecolor].append(path)
+                            else:
+                                print 'color', repr(strokecolor), repr(fillcolor)
+                                self.boundarys[strokecolor] = [path]
 
                 # 4. any lasertags (cut settings)?
                 if node.has_key('lasertags'):
