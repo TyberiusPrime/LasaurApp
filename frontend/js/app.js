@@ -278,6 +278,7 @@ $(document).ready(function(){
         // dataType: "json",
         success: function (data) {
             app_settings = $.parseJSON(data);
+            fill_material_dropdown();
         }
   });
       

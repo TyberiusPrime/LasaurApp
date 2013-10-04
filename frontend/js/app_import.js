@@ -112,11 +112,10 @@ $(document).ready(function(){
       }
 
       // create some pass widgets
-      addPasses(minNumPassWidgets, color_order);
+      addPasses(Math.min(color_count, 50), color_order); // just to prevent an abberant svg from creating a gazillion buttons
 
       // show info div
       $('#passes_info').show();
-      $('#material_div').hide();
 
       // add preview color buttons, show info, register events
       for (var color in color_order) {
@@ -197,9 +196,11 @@ $(document).ready(function(){
   function addPasses(num, colors) {
     last_colors_used = colors;
     var pass_num_offset = getNumPasses() + 1;
-    var buttons = ''
+    var buttons = new Array();
+    var colors_by_index = new Array();
     for (var color in colors) {
-      buttons +='<button class="select_color btn btn-small" style="margin:2px"><div style="width:10px; height:10px; background-color:'+color+'"><span style="display:none">'+color+'</span></div></button>'
+      buttons.push('<button class="select_color btn btn-small" style="margin:2px"><div style="width:10px; height:10px; background-color:'+color+'"><span style="display:none">'+color+'</span></div></button>');
+      colors_by_index.push(color);
     }
     for (var i=0; i<num; i++) {
       var passnum = pass_num_offset+i;
@@ -207,20 +208,57 @@ $(document).ready(function(){
       if (passnum != 1) {
         margintop = 'margin-top:6px;'
       }
-      var html = '<div class="row well" style="margin:0px; '+margintop+' padding:4px; background-color:#eeeeee">' + 
+      var color = colors_by_index[i];
+      var buttons_here = buttons.slice(0);
+      var material_to_use = $('#material_to_use').val();
+      var speed = [];
+      var intensity = [];
+      var repeat = 1;
+      if (material_to_use != '') {
+          if (color in app_settings['materials'][material_to_use])
+          {
+              buttons_here[i] = buttons_here[i].replace('class="', 'class="active ');
+              var pass_info = app_settings['materials'][material_to_use][color];
+              if( Object.prototype.toString.call( pass_info[0] ) === '[object Array]' ) {
+                  for (var index in pass_info)
+                  {
+                      speed.push(pass_info[index][0]);
+                      intensity.push(pass_info[index][1]);
+                  }
+                  repeat = pass_info.length;
+              }
+              else { // just a single pass 
+                  speed.push(app_settings['materials'][material_to_use][color][0]);
+                  intensity.push(app_settings['materials'][material_to_use][color][1]);
+              }
+          }
+          else {
+          speed.push(2000);
+          intensity.push(100);
+          }
+      }
+      else {
+          speed.push(2000);
+          intensity.push(100);
+      }
+      var html = '';
+      for (var t = 0; t < repeat; t++)
+      {
+          html += '<div class="row well" style="margin:0px; '+margintop+' padding:4px; background-color:#eeeeee">' + 
                   '<div class="form-inline" style="margin-bottom:0px">' +
                     '<label>Pass '+ passnum +': </label>' +
                     '<div class="input-prepend" style="margin-left:6px">' +
                       '<span class="add-on" style="margin-right:-5px;">F</span>' +
-                      '<input type="text" class="feedrate" value="2000" title="feedrate 1-8000mm/min" style="width:32px" data-delay="500">' +
+                      '<input type="text" class="feedrate" value="' + speed[t] + '" title="feedrate 1-8000mm/min" style="width:32px" data-delay="500">' +
                     '</div>' +
                     '<div class="input-prepend" style="margin-left:6px">' +
                       '<span class="add-on" style="margin-right:-5px;">%</span>' +
-                      '<input class="intensity" type="textfield" value="100" title="intensity 0-100%" style="width:26px;" data-delay="500">' +
+                      '<input class="intensity" type="textfield" value="' + intensity[t] + '" title="intensity 0-100%" style="width:26px;" data-delay="500">' +
                     '</div>' +
-                    '<span class="colorbtns" style="margin-left:6px">'+buttons+'</span>' +
+                    '<span class="colorbtns" style="margin-left:6px">'+buttons_here.join("\n")+'</span>' +
                   '</div>' +
                 '</div>';
+      }
       // $('#passes').append(html);
       var pass_elem = $(html).appendTo('#passes');
       // color pass widget toggles events registration
