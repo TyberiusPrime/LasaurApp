@@ -5,7 +5,7 @@ $(document).ready(function(){
   // populate queue from queue directory
   $.getJSON("/queue/list", function(data) {
     $.each(data, function(index, name) {
-      add_to_job_queue(name);
+      //add_to_job_queue(name);
     });
   });
     

@@ -116,12 +116,13 @@ $(document).ready(function(){
 
       // show info div
       $('#passes_info').show();
+      $('#material_div').hide();
 
       // add preview color buttons, show info, register events
       for (var color in color_order) {
         $('#canvas_properties .colorbtns').append('<button class="preview_color active-strong active btn btn-small" style="margin:2px"><div style="width:10px; height:10px; background-color:'+color+'"><span style="display:none">'+color+'</span></div></button>');
       }
-      $('#canvas_properties .colorbtns').append('<div style="margin-top:10px; color:#888888">These affect the preview only.</div>');      
+      $('#canvas_properties .colorbtns').append('<div style="margin-top:10px; color:#888888">These affect the preview only. (See below for controls)</div>');      
       $('button.preview_color').click(function(e){
         // toggling manually because automatic toggling 
         // would happen after generatPreview()
