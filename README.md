@@ -1,3 +1,9 @@
+Changes from the offical LasaurApp (http://github.com/stefanix/LasaurApp)
+=========
+
+* centralized configuration
+* introduced 'ignored colors' that get stripped from the svg early on.
+* introduced material types - defined in config.py these allow mapping colors to cut parameters
 
 LasaurApp
 =========
