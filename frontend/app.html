@@ -147,11 +147,6 @@
 									    	<li><a id="svg_import_nop_btn" href="#">Import without Optimizing</a></li>
 									    </ul>
 								    </div>
-									<div style="clear:both" id="material_div">
-                                        <select id="material_to_use" class="pull-left">
-                                            <option value="">F2000/100% (default)</option>
-                                        </select>
-                                    </div>
 
 										<div id="dpi_import_info" class="pull-left" style="margin:10px">Supported file formats are: <b>SVG</b>, <b>DXF</b> (<a href="http://labs.nortd.com/lasersaur/manual/dxf_import">subset</a>)</div>
 										
@@ -171,6 +166,12 @@
 									</div>
 									
 									<div class="well clearfix" style="width:594px; margin:0px; margin-top:10px; padding:8px; background-color:#dddddd">
+									<div style="clear:both" id="material_div">
+                                        <p>Material preset</p><select id="material_to_use" class="pull-left">
+                                            <option value="">F2000/100% (default)</option>
+                                        </select>
+                                    </div>
+
 										<div id="passes_info" class="pull-right" style="width:180px; color:#888888; display:none">
 											<p>Vector cuts: Use one or more passes with different cut parameters (feedrate, intensity). Assign path colors to passes as needed.</p>
 											<p>Need <a id="add_pass_btn" href="">more passes?</a></p>

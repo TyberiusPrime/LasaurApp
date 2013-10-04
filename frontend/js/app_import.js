@@ -91,9 +91,12 @@ $(document).ready(function(){
       }
     });
   }
+
+  var last_data = '';
       
   function handleParsedGeometry(data) {
     // data is a dict with the following keys [boundarys, dpi, lasertags]
+     last_data = data;
     var boundarys = data.boundarys;
     if (boundarys) {
       raw_gcode_by_color = {};
@@ -112,7 +115,7 @@ $(document).ready(function(){
       }
 
       // create some pass widgets
-      addPasses(Math.min(color_count, 50), color_order); // just to prevent an abberant svg from creating a gazillion buttons
+      addPasses(Math.min(color_count, maxNumPassWidgets), color_order); 
 
       // show info div
       $('#passes_info').show();
@@ -198,10 +201,29 @@ $(document).ready(function(){
     var pass_num_offset = getNumPasses() + 1;
     var buttons = new Array();
     var colors_by_index = new Array();
-    for (var color in colors) {
-      buttons.push('<button class="select_color btn btn-small" style="margin:2px"><div style="width:10px; height:10px; background-color:'+color+'"><span style="display:none">'+color+'</span></div></button>');
-      colors_by_index.push(color);
+    var material_to_use = $('#material_to_use').val();
+    if (material_to_use != '') {
+        var i = 0;
+        for (var color in app_settings['materials'][material_to_use]) {
+            if (color in colors) {
+                colors_by_index.push(color);
+            }
+        }
+        for (var color in colors) {
+            if (colors_by_index.indexOf(color) == -1)
+                colors_by_index.unshift(color);
+        }
     }
+    else {
+        for (var color in colors) {
+          colors_by_index.push(color);
+        }
+    }
+    for (var i in colors_by_index) {
+        var color = colors_by_index[i];
+        buttons.push('<button class="select_color btn btn-small" style="margin:2px"><div style="width:10px; height:10px; background-color:'+color+'"><span style="display:none">'+color+'</span></div></button>');
+    }
+
     for (var i=0; i<num; i++) {
       var passnum = pass_num_offset+i;
       var margintop = '';
@@ -210,7 +232,6 @@ $(document).ready(function(){
       }
       var color = colors_by_index[i];
       var buttons_here = buttons.slice(0);
-      var material_to_use = $('#material_to_use').val();
       var speed = [];
       var intensity = [];
       var repeat = 1;
@@ -231,19 +252,22 @@ $(document).ready(function(){
                   speed.push(app_settings['materials'][material_to_use][color][0]);
                   intensity.push(app_settings['materials'][material_to_use][color][1]);
               }
-          }
-          else {
-          speed.push(2000);
-          intensity.push(100);
+          } else {
+              if ('' in app_settings['materials'][material_to_use]) {
+                  speed.push(app_settings['materials'][material_to_use][''][0]);
+                  intensity.push(app_settings['materials'][material_to_use][''][1]);
+              } else {
+                  speed.push(2000);
+                  intensity.push(100);
+              }
           }
       }
       else {
           speed.push(2000);
           intensity.push(100);
       }
-      var html = '';
-      for (var t = 0; t < repeat; t++)
-      {
+      for (var t = 0; t < repeat; t++) {
+          var html = '';
           html += '<div class="row well" style="margin:0px; '+margintop+' padding:4px; background-color:#eeeeee">' + 
                   '<div class="form-inline" style="margin-bottom:0px">' +
                     '<label>Pass '+ passnum +': </label>' +
@@ -258,21 +282,23 @@ $(document).ready(function(){
                     '<span class="colorbtns" style="margin-left:6px">'+buttons_here.join("\n")+'</span>' +
                   '</div>' +
                 '</div>';
+      
+
+          // $('#passes').append(html);
+          var pass_elem = $(html).appendTo('#passes');
+          // color pass widget toggles events registration
+          pass_elem.find('.colorbtns button.select_color').click(function(e){
+            // toggle manually to work the same as preview buttons
+            // also need active-strong anyways
+            if($(this).hasClass('active')) {
+              $(this).removeClass('active');
+              $(this).removeClass('active-strong');
+            } else {
+              $(this).addClass('active');
+              $(this).addClass('active-strong');      
+            }
+          });
       }
-      // $('#passes').append(html);
-      var pass_elem = $(html).appendTo('#passes');
-      // color pass widget toggles events registration
-      pass_elem.find('.colorbtns button.select_color').click(function(e){
-        // toggle manually to work the same as preview buttons
-        // also need active-strong anyways
-        if($(this).hasClass('active')) {
-          $(this).removeClass('active');
-          $(this).removeClass('active-strong');
-        } else {
-          $(this).addClass('active');
-          $(this).addClass('active-strong');      
-        }
-      });
     }
   }
 
@@ -416,5 +442,11 @@ $(document).ready(function(){
     return false;
   });  
 
+
+  $('#material_to_use').change(function(e){
+      if (last_data != '') {
+        handleParsedGeometry(last_data);
+      }
+  });
 
 });  // ready
