@@ -256,6 +256,13 @@ function mapConstrainIntesity(intens) {
   return Math.round(intens * 2.55).toString();
 }
 
+function fill_material_dropdown() {
+    var materials = app_settings['materials'];
+    var material_select = $("#material_to_use")
+    for (key in materials) {
+        material_select.append('<option value="' + key + '">' + key + '</option>');
+    }
+}
 
 
 
@@ -264,6 +271,16 @@ function mapConstrainIntesity(intens) {
 $(document).ready(function(){
   
   $().uxmessage('notice', "app frontend started");
+  $.ajax({
+        type: "GET",
+        url: "/config",
+        data: {},
+        // dataType: "json",
+        success: function (data) {
+            app_settings = $.parseJSON(data);
+        }
+  });
+      
   
   $('#tab_logs_button').click(function(){
     $('#log_content').show()

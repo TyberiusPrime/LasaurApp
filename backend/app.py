@@ -8,6 +8,7 @@ from serial_manager import SerialManager
 from flash import flash_upload, reset_atmega
 from build import build_firmware
 from filereaders import read_svg, read_dxf
+import config
 
 
 APPNAME = "lasaurapp"
@@ -17,7 +18,7 @@ SERIAL_PORT = None
 BITSPERSECOND = 57600
 NETWORK_PORT = 4444
 HARDWARE = 'x86'  # also: 'beaglebone', 'raspberrypi'
-CONFIG_FILE = "lasaurapp.conf"
+CONFIG_FILE = "lasaurapp.conf" # this stores the serial connection info.
 COOKIE_KEY = 'secret_key_jkn23489hsdf'
 FIRMWARE = "LasaurGrbl.hex"
 TOLERANCE = 0.08
@@ -463,6 +464,21 @@ def svg_upload():
         return jsondata
     return "You missed a field."
 
+
+@route('/config')
+def config_handler():
+    # sets are not json serializable -> turn them into lists
+    temp_config = config.config.copy()
+    for key in temp_config:
+        if isinstance(temp_config[key], set):
+            temp_config[key] = list(temp_config[key])
+    try:
+        s =  json.dumps(temp_config)
+    except Exception, e:
+        print 'Error returning config:'
+        print e
+        raise
+    return s
 
 # @route('/svg_reader', method='POST')
 # def svg_upload():

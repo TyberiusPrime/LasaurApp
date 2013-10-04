@@ -1,4 +1,4 @@
 
 var app_settings = {
-  max_seek_speed: 8000
+    //config is now in backend/config.py
 }
